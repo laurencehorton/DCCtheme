@@ -1,0 +1,143 @@
+---
+title: "DCC Brand Guidelines for ggplot"
+author: "Laurence Horton"
+date: "2022/05/16"
+output: 
+  html_document:
+    css: style.css
+---
+
+```{r setup, include = FALSE, echo = FALSE}
+knitr::opts_chunk$set(fig.fullwidth = TRUE, echo = TRUE)
+```
+
+Load package library
+```{r library, message = FALSE}
+library(tidyverse)
+```
+
+## Modify an existing ggplot theme.  
+Create a new theme for ggplot building on an existing theme, in this case theme_classic.
+```{r Create a new theme}
+theme_DCC <- function (base_size = 12,
+                       base_family = "") {
+  theme_classic() %+replace%
+    theme(
+      plot.background = element_rect(colour = "#ffffff"),
+      # White
+      legend.position = "bottom",
+      # Legend at bottom of visualisation
+      panel.grid.major  = element_line(colour = "#ffffff"),
+      # White
+      panel.background = element_rect(fill = "#ffffff", colour = "#ffffff"),
+      # White
+      panel.border = element_rect(colour = "#ffffff", fill = NA),
+      # White
+      axis.line = element_line(colour = "#97999B"),
+      #Cool Gray 7
+      axis.ticks = element_line(colour = "#97999B"),
+      # Cool Gray 7
+      axis.text = element_text(colour = "#75787B"),
+      # Cool Gray 9
+      text = element_text(family = "Proxima Nova", colour = "#75787B") # Cool Gray 9
+    )
+}
+```
+
+Create a vector for discrete category DCC colours. There's only eight colours here, and three of them are grey, so you will have to add more if needed.
+```{r DCC colours}
+DCC_colours <-
+  c(
+    "#DC6B2F",
+    # Gold Drop
+    "#ED8B00",
+    # Tangerine
+    "#F4DA40",
+    # Golden Dream
+    "#00B2A9",
+    # Persian Green
+    "#8E3A80",
+    # Dark Purple
+    "#75787B",
+    # Cool Grey 9
+    "#97999B",
+    # Cool Grey 7
+    "#BBBCBC"
+  ) # Cool Gray 4
+```
+
+Load example data set.
+```{r example data set}
+data(mtcars)
+mtcars <-
+  rownames_to_column(mtcars, "car") # Extract car names from row names and add as a column
+mtcars <- mtcars[c(1:7), ] # Keep only the first seven rows
+```
+
+## Example visualisations with DCC theme
+
+You can of course alter elements of the visualisation, like removing background or grid lines, in ggplot.  
+
+### Column
+```{r column}
+ggplot(mtcars, aes(car, mpg, fill = car)) +
+  geom_col() +
+  geom_text(
+    aes(label = paste0(mpg)),
+    position = position_stack(vjust = .925),
+    size = 3,
+    colour = "#000000"
+  ) +
+  theme_DCC() +
+  scale_fill_manual(values = c(DCC_colours)) +
+  labs(
+    x = "Model of car",
+    y = "Miles per gallon",
+    title = "Cars and MPG",
+    subtitle = "Yes, counting cars MPG",
+    caption = "Source: mtcars dataset",
+  )
+```
+
+## Plot
+```{r plot}
+ggplot(mtcars, aes(mpg, wt)) +
+  geom_point(colour = "#DC6B2F", size = 4) +
+  theme_DCC() +
+  theme(
+    panel.background = element_rect(fill = "#BBBCBC"),
+    panel.grid.major  = element_line(colour = "#97999B"),
+  ) +
+  scale_fill_manual(values = c(DCC_colours)) +
+  labs(
+    x = "Weight of car",
+    y = "Miles per gallon",
+    title = "MPG and CYL",
+    subtitle = "It's cars weight by MPG",
+    caption = "Source: mtcars dataset"
+  )
+```
+
+## Bar
+```{r bar}
+ggplot(mtcars, aes(x = "", fill = factor(mpg))) +
+  geom_bar(width = .5) +
+  scale_fill_manual(values = c(DCC_colours)) +
+  theme_DCC() +
+  theme(
+    legend.position = "right",
+    axis.line = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.border = element_blank()
+  ) +
+  labs(
+    fill = "MPG",
+    title = "Bar chart of MPG and cars",
+    subtitle = "I don't really have a subtitle for this one",
+    caption = "Source: mtcars dataset",
+    x = NULL,
+    y = NULL,
+  ) +
+  coord_flip()
+```
